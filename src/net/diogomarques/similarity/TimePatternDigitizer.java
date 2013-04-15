@@ -38,6 +38,7 @@ public class TimePatternDigitizer {
 		double samplingPeriod = size / (resolution * 1.0);
 		double nextSampleTime = samplingPeriod;
 		for (int i = 0; i < resolution; i++) {
+			// TODO: merge cycles
 			boolean sample = getBit(pattern, Math.round(nextSampleTime));
 			bitSet.set(i, sample);
 			nextSampleTime += samplingPeriod;
@@ -59,20 +60,20 @@ public class TimePatternDigitizer {
 	 * @throws PatternException
 	 *             when the resolution is greater than the pattern's total time.
 	 */
-	public static BitSet getSample(int[] pattern, int sampleRate)
+	public static BitSet getSample(int[] pattern, int resolution)
 			throws PatternException {
 		long[] longPattern = new long[pattern.length];
 		for (int i = 0; i < pattern.length; i++) {
 			longPattern[i] = pattern[i];
 		}
-		return digitize(longPattern, sampleRate);
+		return digitize(longPattern, resolution);
 	}
 
 	private static boolean getBit(long[] pattern, long ms) {		
 		boolean value = true;
 		long elapsedTime = 0;
-		for (long feature : pattern) {
-			elapsedTime += feature;
+		for (long t : pattern) {
+			elapsedTime += t;
 			if (elapsedTime >= ms)
 				break;
 			value = !value;
