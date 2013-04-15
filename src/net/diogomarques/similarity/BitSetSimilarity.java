@@ -3,8 +3,10 @@ package net.diogomarques.similarity;
 import java.util.BitSet;
 
 /**
- * Calculates simple similarity scores for equal-sized BitSets. All scores are
- * between 0.0 (completely different) and 1.0 (equal).
+ * Calculates similarity scores for equal-sized BitSets. All scores are between
+ * 0.0 (completely different) and 1.0 (equal).
+ * <p>
+ * Use {@link Metric#values()} to see available similarity metrics.
  * 
  * @author Diogo Marques <diogohomemmarques@gmail.com>
  * 
@@ -21,12 +23,43 @@ public class BitSetSimilarity {
 		 * required to make both bit arrays equal. <br>
 		 * Let <i>h</i> be the <a
 		 * href="http://en.wikipedia.org/wiki/Hamming_distance">Hamming
-		 * distance</a> between two equal-sized bit arrays, and <i>s</i> the
-		 * size of the arrays. The similarity score is 1 - h/s.
+		 * distance</a> (the number of ones in the XOR) between two equal-sized
+		 * bit arrays, and <i>s</i> the size of the arrays. The similarity score
+		 * is 1 - h/s.
 		 */
 		Hamming,
-		// TODO doc
-		Dice, Tanimoto, Cosine;
+		/**
+		 * The <a href="http://en.wikipedia.org/wiki/Jaccard_index">Jaccard
+		 * coefficient</a> is a well-known similarity metric. <br>
+		 * Let <i>A</i> and <i>B</i> be two bit arrays of equal length. The
+		 * Jaccard coefficient can be expressed as |A AND B| / |A OR B| (the
+		 * number of ones in the intersection over the number of ones in the
+		 * union).
+		 */
+		Jaccard,
+		/**
+		 * The <a href="http://en.wikipedia.org/wiki/Dice%27s_coefficient">Dice-
+		 * Sorensen coefficient</a> is another well-known similarity metric,
+		 * expressing the shared information between two samples. <br>
+		 * Let <i>A</i> and <i>B</i> be two bit arrays of equal length. The Dice
+		 * coefficient can be expressed as (2 * |A AND B|) / (|A| + |B|) (two
+		 * times the number of ones in the intersection over the sum of the
+		 * number of ones in the bit arrays).
+		 */
+		Dice,
+		/**
+		 * The <a href="http://en.wikipedia.org/wiki/Cosine_distance">cosine
+		 * similarity</a> measures the alignment in orientation of the two bit
+		 * arrays (here seen has vectors). Let <i>A</i> and <i>B</i> be two bit
+		 * arrays of equal length. The cosine similarity can be expressed as |A
+		 * AND B| / sqrt(|A| * |B|) (the number of ones in the intersection over
+		 * the square root of the product of the number of ones in the bit
+		 * arrays).
+		 * 
+		 */
+		Cosine;
+		// TODO other metrics (euclidean, 1-manhattan); why not significance
+		// testing for binomial vars (Fisher/McNemar)?
 	}
 
 	/**
@@ -42,8 +75,7 @@ public class BitSetSimilarity {
 	 */
 	public static double getScore(BitSet bitSet1, BitSet bitSet2, Metric metric) {
 		if (bitSet1.size() != bitSet2.size())
-			throw new IllegalArgumentException(
-					"The measure is only defined for equal sized vectors.");
+			throw new IllegalArgumentException("Bit array sizes must be equal");
 		BitSet bitSet1Clone = (BitSet) bitSet1.clone();
 		BitSet bitSet2Clone = (BitSet) bitSet2.clone();
 		double score = 0.0;
@@ -57,33 +89,25 @@ public class BitSetSimilarity {
 		case Dice:
 			score = dice(bitSet1Clone, bitSet2Clone);
 			break;
-		case Tanimoto:
-			score = tanimoto(bitSet1Clone, bitSet2Clone);
+		case Jaccard:
+			score = jaccard(bitSet1Clone, bitSet2Clone);
 			break;
 		default:
-			throw new IllegalArgumentException("No such metric available.");
+			throw new IllegalArgumentException("Metric not available.");
 		}
 		return score;
 	}
-	
-	/**
-	 * Get the Hamming similarity score for vectors, between 0 and 1.
-	 * 
-	 * @return a score between 0.0 and 1.0
-	 */
-	public static double hamming(BitSet bitSet1, BitSet bitSet2) {		
+
+	// 1 - |a XOR b| / size
+	private static double hamming(BitSet bitSet1, BitSet bitSet2) {
 		bitSet1.xor(bitSet2);
 		double hammingDistance = 1.0 * bitSet1.cardinality();
 		double hammingDisimiliraty = hammingDistance / bitSet1.size();
 		return 1 - hammingDisimiliraty;
 	}
 
-	/**
-	 * Get the Tanimoto similarity score, between 0 and 1.
-	 * 
-	 * @return the score
-	 */
-	public static double tanimoto(BitSet bitSet1, BitSet bitSet2) {
+	// |a AND b| / |a OR b|
+	private static double jaccard(BitSet bitSet1, BitSet bitSet2) {
 		BitSet and = (BitSet) bitSet1.clone();
 		BitSet or = (BitSet) bitSet1.clone();
 		and.and(bitSet2);
@@ -91,37 +115,19 @@ public class BitSetSimilarity {
 		return 1.0 * and.cardinality() / or.cardinality();
 	}
 
-	/**
-	 * Get the Dice similarity score, between 0 and 1.
-	 * 
-	 * @return the score
-	 */
-	public static double dice(BitSet bitSet1, BitSet bitSet2) {
-		BitSet andOnes = (BitSet) bitSet1.clone();
-		andOnes.and(bitSet2);
-		return (2.0 * andOnes.cardinality())
+	// (2 * |a AND b|) / (|a| + |b|)
+	private static double dice(BitSet bitSet1, BitSet bitSet2) {
+		BitSet and = (BitSet) bitSet1.clone();
+		and.and(bitSet2);
+		return (2.0 * and.cardinality())
 				/ (bitSet1.cardinality() + bitSet2.cardinality());
 	}
 
-	
-
-	/**
-	 * Get the Cosine similarity score for vectors, between 0 and 1.
-	 * 
-	 * @return a score between 0.0 and 1.0
-	 */
-	public static double cosine(BitSet bitSet1, BitSet bitSet2) {		
+	// |a AND b| / sqrt(|a| * |b|)
+	private static double cosine(BitSet bitSet1, BitSet bitSet2) {
 		BitSet and = (BitSet) bitSet1.clone();
 		and.and(bitSet2);
-		BitSet only1 = (BitSet) bitSet1.clone();
-		only1.xor(bitSet2);
-		only1.and(bitSet1);
-		BitSet only2 = (BitSet) bitSet2.clone();
-		only2.xor(bitSet1);
-		only2.and(bitSet2);
-		double cosineScore = (1.0 * and.cardinality())
-				/ Math.sqrt(1.0 * ((only1.cardinality() + and.cardinality()) * (only2
-						.cardinality() + and.cardinality())));
-		return cosineScore;
+		return (1.0 * and.cardinality())
+				/ Math.sqrt(bitSet1.cardinality() * bitSet2.cardinality());
 	}
 }
