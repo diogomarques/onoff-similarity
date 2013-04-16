@@ -25,13 +25,12 @@ public class TimePatternDigitizer {
 	 * @throws PatternException
 	 *             when the resolution is greater than the pattern's total time.
 	 */
-	public static BitSet digitize(long[] pattern, int resolution)
-			throws PatternException {
+	public static BitSet digitize(long[] pattern, int resolution) {
 		if (resolution < 1)
-			throw new IllegalArgumentException("Bitrate must be over 0");
+			throw new IllegalArgumentException("Resolution must be over 0");
 		long size = size(pattern);
 		if (size < resolution)
-			throw new PatternException(
+			throw new IllegalArgumentException(
 					"Pattern two short for the given resolution. Pattern size="
 							+ size + " and resolution=" + resolution);
 		BitSet bitSet = new BitSet(resolution);
@@ -60,8 +59,7 @@ public class TimePatternDigitizer {
 	 * @throws PatternException
 	 *             when the resolution is greater than the pattern's total time.
 	 */
-	public static BitSet getSample(int[] pattern, int resolution)
-			throws PatternException {
+	public static BitSet digitize(int[] pattern, int resolution) {
 		long[] longPattern = new long[pattern.length];
 		for (int i = 0; i < pattern.length; i++) {
 			longPattern[i] = pattern[i];
@@ -69,7 +67,10 @@ public class TimePatternDigitizer {
 		return digitize(longPattern, resolution);
 	}
 
-	private static boolean getBit(long[] pattern, long ms) {		
+	protected static boolean getBit(long[] pattern, long ms) {
+		if (ms < 1 || ms > size(pattern))
+			throw new IllegalArgumentException("ms must be between 1 and "
+					+ size(pattern));
 		boolean value = true;
 		long elapsedTime = 0;
 		for (long t : pattern) {
@@ -81,7 +82,7 @@ public class TimePatternDigitizer {
 		return value;
 	}
 
-	private static long size(long[] pattern) {
+	protected static long size(long[] pattern) {
 		long size = 0;
 		for (long feature : pattern)
 			size += feature;
