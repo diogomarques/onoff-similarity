@@ -1,17 +1,16 @@
 package net.diogomarques.similarity;
 
-import java.util.BitSet;
 
 /**
- * Calculates similarity scores for equal-sized BitSets. All scores are between
- * 0.0 (completely different) and 1.0 (equal).
+ * Calculates similarity scores for equal-sized on/off patterns. All scores are
+ * between 0.0 (completely different) and 1.0 (equal).
  * <p>
  * Use {@link Metric#values()} to see available similarity metrics.
  * 
  * @author Diogo Marques <diogohomemmarques@gmail.com>
  * 
  */
-public class BitSetSimilarity {
+public class FixedBitSetSimilarity {
 
 	/**
 	 * Available metrics for similarity calculation.
@@ -65,19 +64,20 @@ public class BitSetSimilarity {
 	/**
 	 * Get a measure of similarity between two bit arrays.
 	 * 
-	 * @param bitSet1
-	 *            one bit arrays
-	 * @param bitSet2
-	 *            other bit arrays
+	 * @param pattern1
+	 *            one pattern
+	 * @param pattern2
+	 *            other pattern
 	 * @param metric
 	 *            a {@link Metric}
 	 * @return a score between 0.0 (completely different) to 1.0 (equal).
 	 */
-	public static double getScore(BitSet bitSet1, BitSet bitSet2, Metric metric) {
-		if (bitSet1.size() != bitSet2.size())
+	public static double getScore(FixedBitSet pattern1,
+			FixedBitSet pattern2, Metric metric) {
+		if (pattern1.size() != pattern2.size())
 			throw new IllegalArgumentException("Bit array sizes must be equal");
-		BitSet bitSet1Clone = (BitSet) bitSet1.clone();
-		BitSet bitSet2Clone = (BitSet) bitSet2.clone();
+		FixedBitSet bitSet1Clone = (FixedBitSet) pattern1.clone();
+		FixedBitSet bitSet2Clone = (FixedBitSet) pattern2.clone();
 		double score = 0.0;
 		switch (metric) {
 		case Hamming:
@@ -99,7 +99,8 @@ public class BitSetSimilarity {
 	}
 
 	// 1 - |a XOR b| / size
-	private static double hamming(BitSet bitSet1, BitSet bitSet2) {
+	private static double hamming(FixedBitSet bitSet1,
+			FixedBitSet bitSet2) {
 		bitSet1.xor(bitSet2);
 		double hammingDistance = 1.0 * bitSet1.cardinality();
 		double hammingDisimiliraty = hammingDistance / bitSet1.size();
@@ -107,25 +108,27 @@ public class BitSetSimilarity {
 	}
 
 	// |a AND b| / |a OR b|
-	private static double jaccard(BitSet bitSet1, BitSet bitSet2) {
-		BitSet and = (BitSet) bitSet1.clone();
-		BitSet or = (BitSet) bitSet1.clone();
+	private static double jaccard(FixedBitSet bitSet1,
+			FixedBitSet bitSet2) {
+		FixedBitSet and = (FixedBitSet) bitSet1.clone();
+		FixedBitSet or = (FixedBitSet) bitSet1.clone();
 		and.and(bitSet2);
 		or.or(bitSet2);
 		return 1.0 * and.cardinality() / or.cardinality();
 	}
 
 	// (2 * |a AND b|) / (|a| + |b|)
-	private static double dice(BitSet bitSet1, BitSet bitSet2) {
-		BitSet and = (BitSet) bitSet1.clone();
+	private static double dice(FixedBitSet bitSet1, FixedBitSet bitSet2) {
+		FixedBitSet and = (FixedBitSet) bitSet1.clone();
 		and.and(bitSet2);
 		return (2.0 * and.cardinality())
 				/ (bitSet1.cardinality() + bitSet2.cardinality());
 	}
 
 	// |a AND b| / sqrt(|a| * |b|)
-	private static double cosine(BitSet bitSet1, BitSet bitSet2) {
-		BitSet and = (BitSet) bitSet1.clone();
+	private static double cosine(FixedBitSet bitSet1,
+			FixedBitSet bitSet2) {
+		FixedBitSet and = (FixedBitSet) bitSet1.clone();
 		and.and(bitSet2);
 		return (1.0 * and.cardinality())
 				/ Math.sqrt(bitSet1.cardinality() * bitSet2.cardinality());

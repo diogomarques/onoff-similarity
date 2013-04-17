@@ -1,6 +1,5 @@
 package net.diogomarques.similarity;
 
-import java.util.BitSet;
 
 /**
  * Utility class with methods to digitize arrays of integers that represent
@@ -25,7 +24,7 @@ public class TimePatternDigitizer {
 	 * @throws PatternException
 	 *             when the resolution is greater than the pattern's total time.
 	 */
-	public static BitSet digitize(long[] pattern, int resolution) {
+	public static FixedBitSet digitize(long[] pattern, int resolution) {
 		if (resolution < 1)
 			throw new IllegalArgumentException("Resolution must be over 0");
 		long size = size(pattern);
@@ -33,7 +32,7 @@ public class TimePatternDigitizer {
 			throw new IllegalArgumentException(
 					"Pattern two short for the given resolution. Pattern size="
 							+ size + " and resolution=" + resolution);
-		BitSet bitSet = new BitSet(resolution);
+		FixedBitSet bitSet = new FixedBitSet(resolution);
 		double samplingPeriod = size / (resolution * 1.0);
 		double nextSampleTime = samplingPeriod;
 		for (int i = 0; i < resolution; i++) {
@@ -59,7 +58,7 @@ public class TimePatternDigitizer {
 	 * @throws PatternException
 	 *             when the resolution is greater than the pattern's total time.
 	 */
-	public static BitSet digitize(int[] pattern, int resolution) {
+	public static FixedBitSet digitize(int[] pattern, int resolution) {
 		long[] longPattern = new long[pattern.length];
 		for (int i = 0; i < pattern.length; i++) {
 			longPattern[i] = pattern[i];
