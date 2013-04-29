@@ -1,10 +1,13 @@
 package net.diogomarques.similarity;
 
-
 /**
  * Utility class with methods to digitize arrays of integers that represent
  * on/off signals over time, e.g. [200,200,200] for 200 time units on, followed
  * by 200 time units off, followed by 200 time units on.
+ * 
+ * TODO evaluate sampling procedure. currently, a single point in time is used.
+ * perhaps taking the majority in a given time slot can yield more realistic
+ * representations.
  * 
  * @author Diogo Marques <diogohomemmarques@gmail.com>
  */
