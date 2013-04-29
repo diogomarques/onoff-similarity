@@ -5,9 +5,6 @@ import java.util.Arrays;
 /**
  * Parses long arrays from their default String representation (given by
  * {@link Arrays#toString(long[])}).
- * <code>
- * 
- * 
  * 
  * @author Diogo Marques <diogohomemmarques@gmail.com>
  * 
@@ -22,5 +19,5 @@ public class LongArraysParser {
 			results[i] = Long.parseLong(items[i].trim());
 		return results;
 	}
-	
+
 }
