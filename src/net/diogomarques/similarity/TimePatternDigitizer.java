@@ -47,28 +47,6 @@ public class TimePatternDigitizer {
 		return bitSet;
 	}
 
-	/**
-	 * Digitizes an array of ints into a BitSet.
-	 * 
-	 * @param pattern
-	 *            an array of ints
-	 * @param resolution
-	 *            the number of samples taken from the pattern. Must be at least
-	 *            1 and not exceed the total time in the pattern. E.g. for
-	 *            pattern [10,10,10], the max resolution is 10+10+10=30.
-	 * @return a representation of the given pattern in BitSet form, where the
-	 *         size() equals the given resolution
-	 * @throws PatternException
-	 *             when the resolution is greater than the pattern's total time.
-	 */
-	public static FixedBitSet digitize(int[] pattern, int resolution) {
-		long[] longPattern = new long[pattern.length];
-		for (int i = 0; i < pattern.length; i++) {
-			longPattern[i] = pattern[i];
-		}
-		return digitize(longPattern, resolution);
-	}
-
 	protected static boolean getBit(long[] pattern, long ms) {
 		if (ms < 1 || ms > size(pattern))
 			throw new IllegalArgumentException("ms must be between 1 and "
