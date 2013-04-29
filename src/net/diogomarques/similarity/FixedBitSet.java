@@ -37,6 +37,14 @@ public class FixedBitSet extends BitSet {
 		return size;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		for (int i = 0; i < size; i++)
+			builder.append(get(i) ? 1 : 0);
+		return builder.toString();
+	}
+
 	/**
 	 * Proper deep clone. BitSet's default implementation creates a new instance
 	 * but the internal long[] array is a shallow clone.
@@ -45,7 +53,7 @@ public class FixedBitSet extends BitSet {
 	public Object clone() {
 		FixedBitSet clone = new FixedBitSet(size);
 		clone.or(this);
-		return this;
+		return clone;
 	}
 
 }
